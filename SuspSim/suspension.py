@@ -11,7 +11,8 @@ def get_geometry():
     r_uwbr_out = np.array([0.462, 0.484, 0.323])
     r_lwbf_out = np.array([0.447, 0.53, 0.138])
     r_lwbr_out = np.array([0.447, 0.53, 0.138])
-    r_prod_out = np.array([0.4579, 0.4497, 0.3349])
+    r_prod_out = np.array([0.462, 0.484, 0.323])
+    #r_prod_out = np.array([0.4579, 0.4497, 0.3349])
     r_trod_out = np.array([0.398, 0.53, 0.156])
 
     # Inboard pickup points
@@ -69,12 +70,12 @@ def get_new_inner_pickups(r, er, s):
 
 def get_rotation_matrix(s):
     # Apply this transformation to the main body.
-    sa = np.sin(s[2])
-    ca = np.cos(s[2])
-    sb = np.sin(s[3])
-    cb = np.cos(s[3])
-    sc = np.sin(s[4])
-    cc = np.cos(s[4])
+    sa = np.sin(s[3])
+    ca = np.cos(s[3])
+    sb = np.sin(s[4])
+    cb = np.cos(s[4])
+    sc = np.sin(s[5])
+    cc = np.cos(s[5])
 
     # Define rotation matrix - Roll (Camber), Pitch (Caster) , Yaw (Toe)
     A = np.array([[1, 0, 0], [0, ca, sa], [0, -sa, ca]])
@@ -180,10 +181,10 @@ aRocker = 0
 sRack = 0
 
 # Define rocker and rack displacement
-daRocker = -1 * np.pi / 180
-dsRack = 2*0 * 1e-03
+daRocker = 1 * np.pi / 180
+dsRack = 1 * 1e-03
 
-for i in range(0, 20):
+for i in range(0, 45):
 
     # Update total displacement of rack and rocker
     aRocker += daRocker
@@ -196,14 +197,14 @@ for i in range(0, 20):
     rPickups = get_new_inner_pickups(rPickups, eRocker, sPickupsIn)
 
     # Loop to find solution
-    for i in range(0, 5):
+    for i in range(0, 3):
 
         # Calculate new position of outer pickups
         rPickups, R = get_rigid_body_displacement(sWheelCtr, rPickups, rBodyCentre, rPickupsOut_wheelCtr)
 
         # Calculate error
         err, rLegs = get_error(rPickups, lLegs2)
-        print(np.sum(np.abs(rPickups["Outer"] - rPickups["Inner"]) ** 2, axis=-1))
+
         # Get error Jacobian wrt sWheelCtr
         derr_dsWheelCtr = get_error_jacobian_swheel(rLegs, rPickupsOut_wheelCtr, R)
 
@@ -215,3 +216,4 @@ for i in range(0, 20):
     for i in range(0, 6):
         ax.plot3D(*zip(rPickups["Outer"][i,:], rPickups["Inner"][i, :]), 'b')
 
+plt.show()
