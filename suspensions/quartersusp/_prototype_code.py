@@ -54,41 +54,37 @@ def get_geometry():
     return r
 
 
-def get_rocker_axis(r):
-
-    # Start by calculating rocker rotation axis
-    rr = np.cross(r["Inner"][4, :] - r["Rocker"], r["Outer"][4, :] - r["Inner"][4, :])
-    r_rocker1 = np.array([0.44368, 0.23558, 0.56372])
-    r_rocker2 = np.array([0.47568, 0.23558, 0.56372])
-    rr2 = r_rocker1 - r_rocker2
-    er2 = rr2 / np.linalg.norm(rr2)
-    er = rr / np.linalg.norm(rr)
-
-    # Write output
-    return er2
-
-
-def get_new_inner_pickups(r, er, a_rocker, s_rack):
-
-    # The Rocker position can be found with the Rodrigues rotation and the rack with a simple y displacement
-    # Perform Rodrigues rotation
-    rArm = r["Inner"][4, :] - r["Rocker"]
-    sa = np.sin(a_rocker)
-    ca = np.cos(a_rocker)
-    r["Inner"][4, :] = rArm * ca + np.cross(er, rArm) * sa + er * np.inner(er, rArm) * (1 - ca) + r["Rocker"]
-
-    # Move th rack in the y direction
-    r["Inner"][5, :] = r["Inner"][5, :] + [0, s_rack, 0]
-
-    # Calculate first derivative
-    dr_darocker = - rArm * sa + np.cross(er, rArm) * ca + er * np.inner(er, rArm) * sa
-    dr_dsrack = np.array([0, 1, 0])
-
-    # Write output
-    return r, dr_darocker, dr_dsrack
-
-
-def get_rotation_matrix(s):
+# def get_rocker_axis(r):
+# 
+#     # Start by calculating rocker rotation axis
+#     rr = np.cross(r["Inner"][4, :] - r["Rocker"], r["Outer"][4, :] - r["Inner"][4, :])
+#     er = rr / np.linalg.norm(rr)
+# 
+#     # Write output
+#     return er2
+# 
+# 
+# def get_new_inner_pickups(r, er, a_rocker, s_rack):
+# 
+#     # The Rocker position can be found with the Rodrigues rotation and the rack with a simple y displacement
+#     # Perform Rodrigues rotation
+#     rArm = r["Inner"][4, :] - r["Rocker"]
+#     sa = np.sin(a_rocker)
+#     ca = np.cos(a_rocker)
+#     r["Inner"][4, :] = rArm * ca + np.cross(er, rArm) * sa + er * np.inner(er, rArm) * (1 - ca) + r["Rocker"]
+# 
+#     # Move th rack in the y direction
+#     r["Inner"][5, :] = r["Inner"][5, :] + [0, s_rack, 0]
+# 
+#     # Calculate first derivative
+#     dr_darocker = - rArm * sa + np.cross(er, rArm) * ca + er * np.inner(er, rArm) * sa
+#     dr_dsrack = np.array([0, 1, 0])
+# 
+#     # Write output
+#     return r, dr_darocker, dr_dsrack
+# 
+# 
+# def get_rotation_matrix(s):
     # Apply this transformation to the main body.
     sa = np.sin(s[3])
     ca = np.cos(s[3])
@@ -118,9 +114,9 @@ def get_rotation_matrix(s):
     }
 
     return R
-
-
-def get_rigid_body_displacement(s, r, r0, r_r0):
+# 
+# 
+# def get_rigid_body_displacement(s, r, r0, r_r0):
 
     # Get rotation matrix
     R = get_rotation_matrix(s)
@@ -130,9 +126,9 @@ def get_rigid_body_displacement(s, r, r0, r_r0):
 
     # Write output
     return r, R
-
-
-def get_error(r, l):
+# 
+# 
+# def get_error(r, l):
     # Compute the radius error – how far rPickupsOut are from the pivot of each motor – this should equal the legs.
     # This is a [6x3] matrix, rows are leg and columns are direction (x,y,z)
     d = r["Outer"] - r["Inner"]
@@ -141,9 +137,9 @@ def get_error(r, l):
     error = np.sum(np.abs(d) ** 2, axis=-1) - l
 
     return error, d
-
-
-def get_error_jacobian_swheel(d, r_r0, R):
+# 
+# 
+# def get_error_jacobian_swheel(d, r_r0, R):
 
     # We want to calculate derr_dsWheelCtr so we can then use Newton-Raphson steps to solve for sWheelCtr.
     # derr_dsWheelCtr = 2 * dot(rLegs , drLegs_dsWheelCtr); [6x6]
@@ -169,9 +165,9 @@ def get_error_jacobian_swheel(d, r_r0, R):
 
     # Write output
     return derr_ds
-
-
-def get_error_jacobian_spickupsin(d, dr_darocker, dr_dsrack):
+# 
+# 
+# def get_error_jacobian_spickupsin(d, dr_darocker, dr_dsrack):
 
     # We want to calculate derr_dsPickupsin so we can then find the installation ratio.
     # derr_dsPickupsIn = 2 * dot(rLegs , drLegs_dsPickupsIn; [6x6]
@@ -186,9 +182,9 @@ def get_error_jacobian_spickupsin(d, dr_darocker, dr_dsrack):
 
     # Write output
     return derr_darocker, derr_dsrack
-
-
-def get_damper_jacobian_arocker(r, er, a_rocker):
+# 
+# 
+# def get_damper_jacobian_arocker(r, er, a_rocker):
 
     # The Rocker position can be found with the Rodrigues rotation and the rack with a simple y displacement
     # Perform Rodrigues rotation
@@ -210,72 +206,73 @@ def get_damper_jacobian_arocker(r, er, a_rocker):
 
     # Write output
     return dr_ds
-
-
-# Get geometry of suspension
-rPickups = get_geometry()
-
-
-eRocker = get_rocker_axis(rPickups)
-
-# Define position to which reference all measurements (Wheel centre in design condition?)
-rBodyCentre = np.copy(rPickups["Wheel"])
-
-# Define leg lengths
-lLegs2 = np.sum(np.abs(rPickups["Outer"] - rPickups["Inner"]) ** 2, axis=-1)
-
-# Define Rocker arms
-lRockerPRODIn = np.linalg.norm(rPickups["Inner"][4, :] - rPickups["Rocker"])
-
-# Define rPickupsOut_wheelCtr (points R external pickup points in wheel local frame)
-rPickupsOut_wheelCtr = rPickups["Outer"] - rPickups["Wheel"]
-
-# Initialise displacement vector of wheel center
-sWheelCtr = np.zeros(6)
-
-# Initialise total rocker angle and rack displacement
-aRocker = 0
-sRack = 0
-
-# Define rocker and rack displacement
-daRocker = 1 * np.pi / 180
-dsRack = 0 * 1e-03
-lDamper = np.linalg.norm(rPickups["Damper"][0, :] - rPickups["Damper"][1, :])
-zWheel = 0
-
-for i in range(0, 30):
-
-    # Update total displacement of rack and rocker
-    aRocker += daRocker
-    sRack += dsRack
-
-    # Calculate new position of inner pickups
-    rPickups, drPRODIn_daRocker, drTRODIn_dsRack = get_new_inner_pickups(
-        rPickups, eRocker, daRocker, dsRack)
-    a = np.copy(sWheelCtr)
-    # Loop to find solution
-    for i in range(0, 3):
-
-        # Calculate new position of outer pickups
-        rPickups, R = get_rigid_body_displacement(
-            sWheelCtr, rPickups, rBodyCentre, rPickupsOut_wheelCtr)
-
-        # Calculate error
-        err, rLegs = get_error(rPickups, lLegs2)
-
-        # Get error Jacobian wrt sWheelCtr
-        derr_dsWheelCtr = get_error_jacobian_swheel(rLegs, rPickupsOut_wheelCtr, R)
-
-        # Perform Newton Raphson steps
-        sWheelCtr = sWheelCtr - np.matmul(np.linalg.inv(derr_dsWheelCtr), err)
-
-        # Calculate error Jacobian wtr sPickupsIn
-        derr_daRocker, derr_dsRack = get_error_jacobian_spickupsin(
-            rLegs, drPRODIn_daRocker, drTRODIn_dsRack)
-
-    # Calculate Jacobian of sWheelCtr wrt sPickupsIn
-    dsWheelCtr_daRocker = - np.matmul(np.linalg.inv(derr_dsWheelCtr), derr_daRocker)
-    dsWheelCtr_dsRack = - np.matmul(np.linalg.inv(derr_dsWheelCtr), derr_dsRack)
-
-    # Calculate Jacobiano of sDamper wrt to sRocker
-    dsDamper_daRocker = get_damper_jacobian_arocker(rPickups, eRocker, daRocker)
+# 
+# 
+# # Get geometry of suspension
+# rPickups = get_geometry()
+# 
+# 
+# eRocker = get_rocker_axis(rPickups)
+# 
+# # Define position to which reference all measurements (Wheel centre in design condition?)
+# rBodyCentre = np.copy(rPickups["Wheel"])
+# 
+# # Define leg lengths
+# lLegs2 = np.sum(np.abs(rPickups["Outer"] - rPickups["Inner"]) ** 2, axis=-1)
+# 
+# # Define Rocker arms
+# lRockerPRODIn = np.linalg.norm(rPickups["Inner"][4, :] - rPickups["Rocker"])
+# 
+# # Define rPickupsOut_wheelCtr (points R external pickup points in wheel local frame)
+# rPickupsOut_wheelCtr = rPickups["Outer"] - rPickups["Wheel"]
+# 
+# # Initialise displacement vector of wheel center
+# sWheelCtr = np.zeros(6)
+# 
+# # Initialise total rocker angle and rack displacement
+# aRocker = 0
+# sRack = 0
+# 
+# # Define rocker and rack displacement
+# daRocker = 1 * np.pi / 180
+# dsRack = 0 * 1e-03
+# lDamper = np.linalg.norm(rPickups["Damper"][0, :] - rPickups["Damper"][1, :])
+# zWheel = 0
+# 
+# for i in range(0, 30):
+# 
+#     # Update total displacement of rack and rocker
+#     aRocker += daRocker
+#     sRack += dsRack
+# 
+#     # Calculate new position of inner pickups
+#     rPickups, drPRODIn_daRocker, drTRODIn_dsRack = get_new_inner_pickups(
+#         rPickups, eRocker, daRocker, dsRack)
+#     a = np.copy(sWheelCtr)
+#     # Loop to find solution
+#     for i in range(0, 3):
+# 
+#         # Calculate new position of outer pickups
+#         rPickups, R = get_rigid_body_displacement(
+#             sWheelCtr, rPickups, rBodyCentre, rPickupsOut_wheelCtr)
+# 
+#         # Calculate error
+#         err, rLegs = get_error(rPickups, lLegs2)
+# 
+#         # Get error Jacobian wrt sWheelCtr
+#         derr_dsWheelCtr = get_error_jacobian_swheel(rLegs, rPickupsOut_wheelCtr, R)
+# 
+#         # Perform Newton Raphson steps
+#         sWheelCtr = sWheelCtr - np.matmul(np.linalg.inv(derr_dsWheelCtr), err)
+# 
+#         # Calculate error Jacobian wtr sPickupsIn
+#         derr_daRocker, derr_dsRack = get_error_jacobian_spickupsin(
+#             rLegs, drPRODIn_daRocker, drTRODIn_dsRack)
+# 
+#     # Calculate Jacobian of sWheelCtr wrt sPickupsIn
+#     dsWheelCtr_daRocker = - np.matmul(np.linalg.inv(derr_dsWheelCtr), derr_daRocker)
+#     dsWheelCtr_dsRack = - np.matmul(np.linalg.inv(derr_dsWheelCtr), derr_dsRack)
+# 
+#     # Calculate Jacobiano of sDamper wrt to sRocker
+#     dsDamper_daRocker = get_damper_jacobian_arocker(rPickups, eRocker, daRocker)
+# 
