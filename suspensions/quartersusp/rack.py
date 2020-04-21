@@ -1,27 +1,26 @@
 import numpy as np
-from utilities import rodrigues
-import numpy as np
 
 class Rack():
 
     # Define constructor with all class parameters
     def __init__(self, **kwargs):
-        self._trackrod_position = kwargs["trackrod"] if "trackrod" in kwargs else None
+        self.trackrod_position = kwargs["trackrod"] if "trackrod" in kwargs else None
+        self.rack_travel = 0
+
+    # Property for rack displacement
+    @property
+    def rack_displacement(self):
+        return self._drack_displacement
+
+    # Setter for rack displacement
+    @rack_displacement.setter
+    def rack_displacement(self, value):
+        # Apply rodrigues rotation
+        self._drack_displacement = value
 
     # Set new rack position based on rack displacement
-    def set_rack_position(self, rack_displacement):
+    def apply_displacement(self):
         # Define local variables in scope of function
-        trackrod_position = self._trackrod_position
-
+        self.rack_travel += self._drack_displacement
         # Apply rack displacement, this is simply a displacement along the y axis
-        self._trackrod_position = trackrod_position + np.array([0, rack_displacement, 0])
-
-    # Get rack position
-    def get_rack_position(self):
-        trackrod_position = self._trackrod_position
-        return trackrod_position
-
-    # Update Rock position
-    def update(self, rack_displacement):
-        # Update rack position
-        self.set_rack_position(rack_displacement)
+        self.trackrod_position = self.trackrod_position + np.array([0, self._drack_displacement, 0])
