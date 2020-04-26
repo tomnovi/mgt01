@@ -15,7 +15,6 @@ class Rack():
     # Setter for rack displacement
     @rack_displacement.setter
     def rack_displacement(self, value):
-        # Apply rodrigues rotation
         self._drack_displacement = value
 
     # Set new rack position based on rack displacement
@@ -24,3 +23,5 @@ class Rack():
         self.rack_travel += self._drack_displacement
         # Apply rack displacement, this is simply a displacement along the y axis
         self.trackrod_position = self.trackrod_position + np.array([0, self._drack_displacement, 0])
+        # Apply derivative or trackrod position wrt to rack rack_displacement
+        self.dtrackrod_drack = np.array([0, 1, 0])

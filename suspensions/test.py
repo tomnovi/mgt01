@@ -1,18 +1,13 @@
-from utilities import rodrigues
 import numpy as np
-import matplotlib.pyplot as plt
 
-axis = np.array([1, 0, 0])
-pickup = np.array([1, 1, 0])
-pivot = np.array([1, 0, 0])
-Rodrigues = rodrigues.Rodrigues(pivot_position=pivot, pickup_position=pickup, rotation_axis=axis)
 
-plt.figure()
-ax = plt.axes(projection="3d")
-ax.plot3D(*zip(pivot, pickup), c='r')
-angle = 10 * np.pi / 180
+a = np.array([1, 2, 3])
 
-for i in range(0,35):#
-    vrot = Rodrigues.rotation(angle)
-    ax.plot3D(*zip(pivot, vrot), c='b')
-plt.show()
+b = np.array([4, 5, 6])
+
+c = np.subtract([a, a, a],1)
+
+d = np.array([[a],[a],[a]])
+
+print(d)
+print(c)
