@@ -1,4 +1,4 @@
-import Rocker
+from .rocker import Rocker
 
 class Spring(Rocker):
     # Define constructor with all class parameters

@@ -1,6 +1,5 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod, abstractproperty
-from typing import Any
+from abc import abstractmethod, abstractproperty
 
 # Create Builder Interface
 class Builder():
@@ -8,6 +7,10 @@ class Builder():
     @abstractproperty
     def product(self) -> None:
         pass
+
+    #@abstractmethod
+    #def define_pickups(self) -> None:
+    #    pass
 
     @abstractmethod
     def produce_wheel(self) -> None:
@@ -25,16 +28,14 @@ class Builder():
 class Suspensions():
 
     def __init__(self) -> None:
-        self.parts = []
+        self.parts = {}
 
-    def add(self, part: Any) -> None:
-        self.parts.append(part)
+    def add(self, **kwargs) -> None:
+        self.parts.update(kwargs)
 
-    def list_parts(self) -> None:
-        print(f"Product parts: {', '.join(self.parts)}", end="")
 
 # Create Director Class
-class Director:
+class Director():
     """
     The Director is only responsible for executing the building steps in a
     particular sequence. It is helpful when producing products according to a
@@ -65,34 +66,3 @@ class Director:
         self.builder.produce_wheel()
         self.builder.produce_elasticlinks()
         self.builder.produce_rigidlinks()
-
-
-# if __name__ == "__main__":
-#     """
-#     The client code creates a builder object, passes it to the director and then
-#     initiates the construction process. The end result is retrieved from the
-#     builder object.
-#     """
-#
-#     director = Director()
-#     builder = ConcreteBuilder1()
-#     director.builder = builder
-#
-#     print("Standard basic product: ")
-#     director.build_minimal_viable_product()
-#     builder.product.list_parts()
-#
-#     print("\n")
-#
-#     print("Standard full featured product: ")
-#     director.build_full_featured_product()
-#     builder.product.list_parts()
-#
-#     print("\n")
-#
-#     # Remember, the Builder pattern can be used without a Director class.
-#     print("Custom product: ")
-#     builder.produce_part_a()
-#     builder.produce_part_b()
-#     builder.product.list_parts()
-#

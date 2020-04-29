@@ -1,3 +1,9 @@
+from .builder import Suspensions, Builder
+from ..components.wheel import Wheel
+from ..components.spring import Spring
+from ..components.rack import Rack
+from ..components.prod import Prod
+
 # Create Concrete Builders
 class DoubleWishbone(Builder):
 
@@ -15,11 +21,14 @@ class DoubleWishbone(Builder):
         self.reset()
         return product
 
+    #def define_pickups(self) -> None:
+    #    pass
+
     def produce_wheel(self) -> None:
-        self._product.add("Wheel")
+        self._product.add(wheel=Wheel())
 
     def produce_elasticlinks(self) -> None:
-        self._product.add("Spring")
+        self._product.add(spring=Spring())
 
     def produce_rigidlinks(self) -> None:
-        self._product.add("Links")
+        self._product.add(prod=Prod(), rack=Rack())

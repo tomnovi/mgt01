@@ -1,7 +1,7 @@
 import numpy as np
 from utilities import rotation_matrix
 
-class Wheel:
+class Wheel():
 
     # Define constructor with all class parameters
     def __init__(self, **kwargs):
