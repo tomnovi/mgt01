@@ -6,7 +6,6 @@ from .assemblies.doublewishbone import DoubleWishbone
 director = Director()
 builder = DoubleWishbone()
 director.builder = builder
-print("Standard basic product: ")
 director.build_full_suspension()
 
 

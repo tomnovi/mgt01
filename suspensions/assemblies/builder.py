@@ -1,36 +1,32 @@
-from __future__ import annotations
-from abc import abstractmethod, abstractproperty
-
 # Create Builder Interface
 class Builder():
 
-    @abstractproperty
-    def product(self) -> None:
+    def product(self):
         pass
 
-    #@abstractmethod
-    #def define_pickups(self) -> None:
-    #    pass
-
-    @abstractmethod
-    def produce_wheel(self) -> None:
+    def read_pickups(self):
         pass
 
-    @abstractmethod
-    def produce_elasticlinks(self) -> None:
+    def produce_wheel(self):
         pass
 
-    @abstractmethod
-    def produce_rigidlinks(self) -> None:
+    def produce_elasticlinks(self):
+        pass
+
+    def produce_rigidlinks(self):
         pass
 
 # Create Product Class
 class Suspensions():
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.parts = {}
+        self.points = {}
 
-    def add(self, **kwargs) -> None:
+    def read(self, **kwargs):
+        self.points.update(kwargs)
+
+    def add(self, **kwargs):
         self.parts.update(kwargs)
 
 
@@ -43,15 +39,15 @@ class Director():
     optional, since the client can control builders directly.
     """
 
-    def __init__(self) -> None:
+    def __init__(self):
         self._builder = None
 
     @property
-    def builder(self) -> Builder:
+    def builder(self):
         return self._builder
 
     @builder.setter
-    def builder(self, builder: Builder) -> None:
+    def builder(self, builder: Builder):
         # The Director works with any builder instance that the client code passes
         # to it. This way, the client code may alter the final type of the newly
         # assembled product.
@@ -59,10 +55,13 @@ class Director():
 
     # The Director can construct several product variations using the same
     # building steps.
-    def build_simplified_suspension(self) -> None:
+    def build_simplified_suspension(self):
+        self.builder.read_pickups()
         self.builder.produce_wheel()
 
-    def build_full_suspension(self) -> None:
+    def build_full_suspension(self):
+        self.builder.read_pickups()
         self.builder.produce_wheel()
         self.builder.produce_elasticlinks()
-        self.builder.produce_rigidlinks()
+        self.builder.produce_rocker()
+        self.builder.produce_rack()
